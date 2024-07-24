@@ -1,0 +1,32 @@
+
+pool:
+  vmImage: ubuntu-latest
+stages:
+  - stage: Install
+    jobs:
+      - job: Install
+        steps:
+          - script: |
+              npm install -g snyk snyk-to-html
+              mkdir -p html
+              snyk --version
+            condition: always()
+          
+          - script: |
+              snyk auth 173f3477-cac0-44a8-a51d-0337b7f37003
+            condition: always()
+          
+          - script: | 
+              echo $PATH
+              condition: always()
+              set +e
+    
+          - script: |
+              snyk code test
+            condition: always()
+            displayName: sast
+            
+          - script: |
+              snyk test --all-projects --detection-depth=4
+            condition: always()
+            displayName: sca
